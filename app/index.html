@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main>
+      <header class="page-header">
+        <h1>Project Pulse</h1>
+        <p class="page-intro">A concise view of active work, ownership, and next priorities.</p>
+      </header>
+
+      <section aria-label="Project dashboard" aria-live="polite">
+        <div id="dashboard-content" class="loading" role="status">Loading projects…</div>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const content = document.getElementById("dashboard-content");
+        const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+        function createMetadataItem(label, value, valueClass) {
+          const item = document.createElement("div");
+          item.className = "meta-item";
+
+          const term = document.createElement("dt");
+          term.textContent = label;
+
+          const description = document.createElement("dd");
+          description.className = `meta-value ${valueClass || ""}`.trim();
+          description.textContent = value;
+
+          item.append(term, description);
+          return item;
+        }
+
+        function classToken(prefix, value) {
+          const normalized = value
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+          return normalized ? `${prefix}-${normalized}` : prefix;
+        }
+
+        function isValidProject(project) {
+          return project !== null
+            && typeof project === "object"
+            && requiredFields.every((field) =>
+              typeof project[field] === "string" && project[field].trim() !== ""
+            )
+            && (project.summary === undefined || typeof project.summary === "string");
+        }
+
+        function renderProjects(projects) {
+          const dashboard = document.createElement("div");
+          dashboard.className = "dashboard";
+
+          projects.forEach((project) => {
+            const card = document.createElement("article");
+            card.className = "project-card";
+
+            const name = document.createElement("h2");
+            name.className = "project-name";
+            name.textContent = project.name;
+            card.append(name);
+
+            if (project.summary && project.summary.trim() !== "") {
+              const summary = document.createElement("p");
+              summary.className = "project-summary";
+              summary.textContent = project.summary;
+              card.append(summary);
+            }
+
+            const metadata = document.createElement("dl");
+            metadata.className = "project-meta";
+            metadata.append(
+              createMetadataItem("Owner", project.owner),
+              createMetadataItem("Status", project.status, `status ${classToken("status", project.status)}`),
+              createMetadataItem("Recent activity", project.recentActivity),
+              createMetadataItem("Priority", project.priority, `priority ${classToken("priority", project.priority)}`)
+            );
+            card.append(metadata);
+            dashboard.append(card);
+          });
+
+          content.replaceWith(dashboard);
+        }
+
+        function showMessage(message, className, role) {
+          const state = document.createElement("p");
+          state.className = className;
+          state.setAttribute("role", role);
+          state.textContent = message;
+          content.replaceWith(state);
+        }
+
+        fetch("project-data.json")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`The project data request failed (${response.status}).`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (!data || typeof data !== "object" || !Array.isArray(data.projects)) {
+              throw new Error("Project data is malformed: expected a projects array.");
+            }
+            if (data.projects.length === 0) {
+              showMessage("No projects are available right now.", "empty-state", "status");
+              return;
+            }
+            if (!data.projects.every(isValidProject)) {
+              throw new Error("Project data is malformed: one or more project records are incomplete.");
+            }
+            renderProjects(data.projects);
+          })
+          .catch((error) => {
+            console.error(error);
+            showMessage("Unable to load project data. Please try again later.", "error", "alert");
+          });
+      })();
+    </script>
+  </body>
+</html>

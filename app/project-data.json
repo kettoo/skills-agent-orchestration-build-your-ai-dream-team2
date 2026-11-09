@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Onboarding",
+      "owner": "Maya Chen",
+      "status": "On Track",
+      "recentActivity": "Published the first-run guide and collected reviewer feedback.",
+      "priority": "High",
+      "summary": "Make the first contribution clear, welcoming, and repeatable."
+    },
+    {
+      "name": "Release Readiness",
+      "owner": "Jordan Patel",
+      "status": "In Progress",
+      "recentActivity": "Completed the deployment checklist; browser testing is underway.",
+      "priority": "Critical",
+      "summary": "Coordinate final checks so the next release ships with confidence."
+    },
+    {
+      "name": "Community Insights",
+      "owner": "Sam Rivera",
+      "status": "Planning",
+      "recentActivity": "Prioritized the feedback themes from last month's contributor survey.",
+      "priority": "Medium",
+      "summary": "Turn contributor feedback into a focused improvement roadmap."
+    },
+    {
+      "name": "Documentation Refresh",
+      "owner": "Avery Morgan",
+      "status": "At Risk",
+      "recentActivity": "Waiting for subject-matter review of the migration examples.",
+      "priority": "High",
+      "summary": "Keep the most-used setup and migration guidance accurate."
+    }
+  ]
+}
